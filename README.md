@@ -25,7 +25,7 @@ To Calculate a default value, use the once(if(...)) functions, those will be add
 
  To enable markdows (create title ... ), the naame of the note need to start witn "label_"
  
- HTML tag (<h1>, <h2> ,<li>... ) will be transformed in markdown
+ HTML tag (h1, h2 ,li... ) will be transformed in markdown
  
 
 ## Setps to follow
