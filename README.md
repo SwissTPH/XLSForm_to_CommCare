@@ -30,10 +30,10 @@ To Calculate a default value, use the once(if(...)) functions, those will be ada
 
 ## Steps to follow
 
-1. Use Excel to create your questionnaire, name the file data.xls (important for CommCareHQ, the script might support other name later)
-2. With XLSForm online or offline create the data.xml
-3. execute the script in the same folder as data.xml
-4. copy paste the content for out.data.xml in CommcareHQ
+1. Use Excel to create your questionnaire, name the file _whatever_data.xls like _ecda_data.xls
+2. With XLSForm online or offline create the  _whatever_data.xml
+3. execute the script in the same folder as  _whatever_data.xml (woks on all the files ending by _data.xml)
+4. copy paste the content for out._whatever_data.xml in CommcareHQ
 5. Ensure that CommCare HQ has all pictures and required a lookup table
 6. then you can create a new application version
 
