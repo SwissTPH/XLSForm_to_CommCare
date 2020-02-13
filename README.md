@@ -17,6 +17,15 @@ Also in Commcare we need to map the instance to a lookup table, to do so:
 
 in CommCareHQ the Conditionnal multiple choice need to use a lookup table, follow CammCare instruction build such lookup table, by default the script will use the column called "value" for the value and label for the label (this field can be in several languages)
 
+### case property
+
+In commCare one can define case property on the questionnaire level and reuse those in the followup cases. to have this feature fron the xls create line that will fake this case property, then reuse it in label and calculation as you sit fit. the create line should follow those rules: 
+* type  text
+* name starts with _case_<CommCare_case_property_name>
+* label can contain whatever you want
+* no other colum shoud be filled
+
+
 ### Calculation of the default Value
 
 To Calculate a default value, use the once(if(...)) functions, those will be adapted to match CommCareHQ fields 
