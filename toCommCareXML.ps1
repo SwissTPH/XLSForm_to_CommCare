@@ -18,14 +18,32 @@ Foreach-Object {
 		$regex_data = "$($fileName)"
 		$replace_data = 'data'
 		# replace <translation lang="Francais (fr)"> and change it to <translation lang="fra"
-		$regex_lang = '"Fran\wais \(fr\)"'
-		$replace_lang ='"fra"'
+		$regex_lang = '<translation lang="\w+ \((\w+)\)">'
+		$replace_lang ='<translation lang="$1">'
+		$regex_lang2 = '<translation lang="fr">'
+		$replace_lang2 = '<translation lang="fra">'
+		$regex_lang2 = '<translation lang="hausa">'
+		$replace_lang2 = '<translation lang="hau">'
 		#add vellum def
 		$regex_vellum = 'xmlns:jr="http://openrosa.org/javarosa"'
 		$replace_vellum = 'xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum"'
 		# once 
 		$regex_once = 'calculate="once\( ?if\( ?/data/(([^"](?!"))+)\)' 
 		$replace_once ="vellum:calculate=`"if(#form/`$1"
+		#remove case select questions
+		$regex_case_q_txt = '<text id="(/[^/|^"]+)+/_case_[^"]+"><value>((.(?!/value>))+)</value></text>'
+		#remove case select def 
+		$regex_case_q_def = '<_case_[^>]+>'
+		#remove case select bind might not be required
+		$regex_case_q_bind = '<bind nodeset="((?:/(?!_case_)(?:[^/|"|>]+))+)/_case_[^"]+" (.(?!>))+/>'
+		#remove fake case input
+		$regex_case_input = '<input ref="((/[^/|\)|''|"|,|>]+)+)/_case_[^"]+"><label ref="[^"]+"\/></input>'
+		#replace the reference to the case
+		$regex_case = '<output value=" *((?:/(?!_case_)(?:[^/|"|>]+))+)/_case_([^"]+) *"/>'
+		$replace_case = '<output value="instance(''casedb'')/casedb/case[@case_id = instance(''commcaresession'')/session/data/case_id]/$2" vellum:value="#case/$2" />'
+		#replace case in calculation
+		$regex_case_calc = '((?:/(?!_case_)(?:[^/|)|''|"|,|>]+))+)/_case_([^/|)|''|"|,|>]+)'
+		$replace_case_calc = '#case/$2'
 		#remove fake select questions
 		$regex_fake_q_txt = '<text id="(/[^/|^"]+)+/fake_select[^"]+"><value>((.(?!/value>))+)</value></text>'
 		#remove fake select def 
@@ -79,13 +97,21 @@ Foreach-Object {
 		$replace_dec = 'type="xsd:double"'
 		# remove the decimal-date-time which is not supported and not required in Commcare
 		$regex_decimal_date_time = 'decimal-date-time'
-		Write-output "le fichier $($_.FullName) à été trouvé"
+		Write-output "file $($_.FullName) was found"
 		(Get-Content  -Encoding UTF8 -Path $_.FullName) `
 			-replace $regex_data , $replace_data `
 			-replace $regex_lang , $replace_lang `
+			-replace $regex_lang2 , $replace_lang2 `
+			-replace $regex_lang3 , $replace_lang3 `
 			-replace $regex_vellum , $replace_vellum `
 			-replace $regex_once , $replace_once `
-			-replace $regex_decimal_date_time , '' `			
+			-replace $regex_decimal_date_time , '' `
+			-replace $regex_case_q_txt, '' `
+			-replace $regex_case_q_def, '' `
+			-replace $regex_case_q_bind, '' `
+			-replace $regex_case_input, '' `
+			-replace $regex_case_calc, $replace_case_calc `
+			-replace $regex_case, $replace_case `
 			-replace $regex_fake_q_txt, '' `
 			-replace $regex_fake_q_def, '' `
 			-replace $regex_fake_q_bind, '' `
