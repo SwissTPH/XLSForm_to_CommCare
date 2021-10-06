@@ -32,14 +32,11 @@ Foreach-Object {
 		$replace_breathing_bind= "`$1intent"
 		#FIXME<odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="breathing_count" class="org.commcare.respiratory.BREATHCOUNT" />
 		$fileName = $matches[1]
-		# add location fixture/item-list
-		$regex_location = '<instance id="locations">.+?</instance>'
-		$replace_location  = '<instance src="jr://fixture/locations" id="locations" />'
-		$regex_location_calculate = '(<bind calculate=")1(" (?:vellum:)?nodeset="(?:/[^/|^"]+)+/user_location_uid" type="string"/>)'
-		$replace_location_calculate = '$1 instance(''locations'')/locations/location[@id = instance(''commcaresession'')/session/user/data/commcare_location_id]/site_code $2'
 		#in commcare the root must be named data
 		$regex_data = "$($fileName)"
 		$replace_data = 'data'
+
+		
 		# replace <translation lang="Francais (fr)"> and change it to <translation lang="fra"
 		$regex_lang = '<translation (default="true\(\)" )?lang="\w+ \((\w+)\)">'
 		$replace_lang ='<translation $1lang="$2">'
@@ -67,7 +64,7 @@ Foreach-Object {
 		#remove case select questions
 		$regex_case_q_txt = '<text id="(/[^/|^"]+)+/_case_[^"]+"><value>((.(?!/value>))+)</value></text>'
 		#remove case select def 
-		$regex_case_q_def = '<_case_[^>]+>'
+		$regex_case_q_def = '<_case_[^>]+>([^<]*</_case_[^>]+>)?'
 		#remove case select bind might not be required
 		$regex_case_q_bind = '<bind nodeset="((?:/(?!_case_)(?:[^/|"|>]+))+)/_case_[^"]+" (.(?!>))+/>'
 		#remove fake case input
@@ -89,6 +86,11 @@ Foreach-Object {
 		#replace the "lut" instance definition with a link toward Commcare lookup table
 		$regex_dyn_q_instance = '<instance id="lut_([^"]+)"><root>(.(?!/root))+</root></instance>'
 		$replace_dyn_q_instance = '<instance src="jr://fixture/item-list:$1" id="$1" />'
+		# Insert location and sessions
+		$regex_ext_location = '<instance id="locations"><root>(.(?!/root))+</root></instance>'
+		$replace_ext_location = '<instance src="jr://fixture/locations" id="locations" />'
+		$regex_ext_ccsession = '<instance id="commcaresession"><root>(.(?!/root))+</root></instance>'
+		$replace_ext_ccsession = '<instance src="jr://instance/session" id="commcaresession" />'
 		#. remove meta question <meta><instanceID/></meta>
 		$regex_dyn_q_select = "instance\('lut_([^']+)'\)/root/item"
 		$replace_dyn_q_select = "instance('`$1')/`$1_list/`$1"
@@ -103,7 +105,7 @@ Foreach-Object {
 		$regex_img = 'jr://images'
 		$replace_img ='jr://file/commcare/image/help/data'
 		# remove 
-		$regex_lut_text = '<text id="static_instance-lut[^"]+"><value>((.(?!/value>))+)</value></text>'
+		$regex_lut_text = '<text id="static_instance-(?:lut¦locations|commcaresession)[^"]*"><value>((.(?!/value>))+)</value></text>'
 		#replace color and html codes
 		$regex_leading_space = '&lt;(\w+)&gt; *'
 		$replace_leading_space = "&lt;`$1&gt;"
@@ -148,8 +150,6 @@ Foreach-Object {
 		$regex_decimal_date_time = 'decimal-date-time'
 		Write-output "file $($_.FullName) was found"
 		(Get-Content  -Encoding UTF8 -Path $_.FullName -Raw ) `
-			-replace $regex_location, $replace_location `
-			-replace $regex_location_calculate, $replace_location_calculate `
 			-replace $regex_underline_hint, $replace_underline_hint `
 			-replace $regex_underline, $replace_underline `
 			-replace $regex_underline, $replace_underline `
@@ -172,6 +172,8 @@ Foreach-Object {
 			-replace $regex_fake_q_def, '' `
 			-replace $regex_fake_q_bind, '' `
 			-replace $regex_fake_select, '' `
+			-replace $regex_ext_location, $replace_ext_location `
+			-replace $regex_ext_ccsession, $replace_ext_ccsession `
 			-replace $regex_dyn_q_instance, $replace_dyn_q_instance `
 			-replace $regex_dyn_q_select, $replace_dyn_q_select `
 			-replace $regex_dyn_q_txt, $replace_dyn_q_txt `
